@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
 import { Stats } from "./stats";
+import SettingsPanel from "./settings";
+import { Settings as SettingsIcon } from "lucide-react";
 import { DEFAULT_WORK_DURATION, SessionType } from "@/lib/pomodoro/constants";
 import {
   playNotificationSound,
@@ -30,6 +32,7 @@ export function PomodoroDashboard() {
   const [isRunning, setIsRunning] = useState(false);
   const [sessionType, setSessionType] = useState<SessionType>("work");
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Load initial stats and settings
   useEffect(() => {
@@ -124,9 +127,24 @@ export function PomodoroDashboard() {
     setTimeRemaining(getSessionDuration("work", settings));
   };
 
+  const handleSettingsSave = (s: any) => {
+    setSettings(s);
+    // if current session type changed durations, adjust remaining time proportionally
+    setTimeRemaining(getSessionDuration(sessionType, s));
+  };
+
   return (
     <div className="w-full max-w-md mx-auto">
       <Toaster />
+      <div className="flex justify-end mb-2">
+        <button
+          aria-label="Open settings"
+          className="p-2 rounded-md hover:bg-gray-100"
+          onClick={() => setIsSettingsOpen((v) => !v)}
+        >
+          <SettingsIcon className="w-5 h-5" />
+        </button>
+      </div>
       <Card className="p-8 shadow-lg">
         <TimerDisplay
           timeRemaining={timeRemaining}
@@ -145,6 +163,12 @@ export function PomodoroDashboard() {
           />
         </div>
         <Stats />
+        {isSettingsOpen && (
+          <SettingsPanel
+            onClose={() => setIsSettingsOpen(false)}
+            onSave={handleSettingsSave}
+          />
+        )}
       </Card>
     </div>
   );
