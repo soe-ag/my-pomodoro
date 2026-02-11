@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
+import { Stats } from "./stats";
 import { DEFAULT_WORK_DURATION, SessionType } from "@/lib/pomodoro/constants";
 import {
   playNotificationSound,
@@ -143,6 +144,7 @@ export function PomodoroDashboard() {
             onReset={handleReset}
           />
         </div>
+        <Stats />
       </Card>
     </div>
   );
