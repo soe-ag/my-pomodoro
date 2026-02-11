@@ -38,7 +38,7 @@ export function TimerControls({
         <Button
           onClick={onStart}
           size="lg"
-          className={`gap-2 bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-lg ring-1 ring-white/10 rounded-lg`}
+          className={`gap-2 bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-2xl ring-1 ring-white/20 rounded-full px-6 py-3 transform transition-transform hover:-translate-y-1 hover:scale-105 active:scale-95`}
         >
           <Play className="w-5 h-5" />
           Start
@@ -48,7 +48,7 @@ export function TimerControls({
           onClick={onPause}
           size="lg"
           variant="outline"
-          className={`gap-2 cursor-pointer text-white border-white/20 bg-black/40 ring-1 ring-white/5 rounded-lg shadow-sm`}
+          className={`gap-2 cursor-pointer text-white border-white/20 bg-white/5 dark:bg-black/40 ring-1 ring-white/5 rounded-full shadow-sm transform transition hover:scale-105 hover:text-white dark:hover:text-white`}
         >
           <Pause className="w-5 h-5" />
           Pause
@@ -60,7 +60,7 @@ export function TimerControls({
         onClick={onReset}
         size="lg"
         variant="outline"
-        className={`gap-2 cursor-pointer text-white border-white/20 bg-black/40 ring-1 ring-white/5 rounded-lg shadow-sm`}
+        className={`gap-2 cursor-pointer text-white border-white/20 bg-transparent dark:bg-black/30 ring-1 ring-white/5 rounded-full shadow-sm transform transition hover:bg-white/5 dark:hover:bg-white/8 hover:scale-105 hover:text-white dark:hover:text-white`}
       >
         <RotateCcw className="w-5 h-5" />
         Reset

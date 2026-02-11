@@ -107,39 +107,44 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
       <div className="grid grid-cols-2 gap-3">
         <label className="text-sm">Work (minutes)</label>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             aria-label="decrease work"
-            className={`px-2 py-1 rounded-md h-8 flex items-center justify-center bg-linear-to-r ${gradientFor(sessionType)} text-white`}
+            size="sm"
             onClick={() => setWorkMin((v) => Math.max(1, v - 1))}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
             -
-          </button>
+          </Button>
+
           <input
             type="number"
             min={1}
             value={workMin}
             onChange={(e) => setWorkMin(Number(e.target.value))}
-            className="bg-transparent border border-white/10 text-white text-center w-10 h-8 rounded-md"
+            className="bg-transparent border border-white/10 text-white text-center w-12 h-8 rounded-md"
             aria-label="work minutes"
           />
-          <button
+
+          <Button
             aria-label="increase work"
-            className={`px-2 py-1 rounded-md h-8 flex items-center justify-center bg-linear-to-r ${gradientFor(sessionType)} text-white`}
+            size="sm"
             onClick={() => setWorkMin((v) => v + 1)}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
             +
-          </button>
+          </Button>
         </div>
 
         <label className="text-sm">Short break (minutes)</label>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             aria-label="decrease break"
-            className={`px-2 py-1 rounded-md h-8 flex items-center justify-center bg-linear-to-r ${gradientFor(sessionType)} text-white`}
+            size="sm"
             onClick={() => setBreakMin((v) => Math.max(1, v - 1))}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
             -
-          </button>
+          </Button>
           <input
             type="number"
             min={1}
@@ -148,24 +153,26 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
             className="bg-transparent border border-white/10 text-white text-center w-10 h-8 rounded-md"
             aria-label="break minutes"
           />
-          <button
+          <Button
             aria-label="increase break"
-            className={`px-2 py-1 rounded-md h-8 flex items-center justify-center bg-linear-to-r ${gradientFor(sessionType)} text-white`}
+            size="sm"
             onClick={() => setBreakMin((v) => v + 1)}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
             +
-          </button>
+          </Button>
         </div>
 
         <label className="text-sm">Long break (minutes)</label>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             aria-label="decrease long break"
-            className={`px-2 py-1 rounded-md h-8 flex items-center justify-center bg-linear-to-r ${gradientFor(sessionType)} text-white`}
+            size="sm"
             onClick={() => setLongBreakMin((v) => Math.max(1, v - 1))}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
             -
-          </button>
+          </Button>
           <input
             type="number"
             min={1}
@@ -174,13 +181,14 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
             className="bg-transparent border border-white/10 text-white text-center w-10 h-8 rounded-md"
             aria-label="long break minutes"
           />
-          <button
+          <Button
             aria-label="increase long break"
-            className={`px-2 py-1 rounded-md h-8 flex items-center justify-center bg-linear-to-r ${gradientFor(sessionType)} text-white`}
+            size="sm"
             onClick={() => setLongBreakMin((v) => v + 1)}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
             +
-          </button>
+          </Button>
         </div>
 
         <label className="text-sm">Sound</label>
@@ -208,13 +216,13 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
         <Button
           variant="outline"
           onClick={onClose}
-          className="text-white border-white/20"
+          className="text-white border-white/20 rounded-full px-4 py-2 shadow-sm hover:bg-white/5 dark:hover:bg-white/8 hover:text-white dark:hover:text-white"
         >
           Cancel
         </Button>
         <Button
           onClick={handleSave}
-          className={`bg-linear-to-r ${gradientFor(sessionType)} text-white`}
+          className={`bg-linear-to-r ${gradientFor(sessionType)} text-white rounded-full px-4 py-2 shadow-lg transform transition hover:-translate-y-0.5 hover:scale-105`}
         >
           Save
         </Button>

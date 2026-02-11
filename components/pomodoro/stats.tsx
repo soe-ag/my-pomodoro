@@ -44,6 +44,19 @@ export function Stats() {
     1,
   );
 
+  const gradientFor = (type: string | undefined) => {
+    switch (type) {
+      case "work":
+        return "bg-linear-to-r from-blue-600 to-purple-600";
+      case "break":
+        return "bg-linear-to-r from-emerald-500 to-green-600";
+      case "long-break":
+        return "bg-linear-to-r from-blue-400 to-blue-400";
+      default:
+        return "bg-gray-400/70";
+    }
+  };
+
   return (
     <div className="mt-6">
       <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-md">
@@ -99,11 +112,11 @@ export function Stats() {
                     (s: any) => s.type === "break",
                   );
                   const colorClass = hasWork
-                    ? "bg-blue-400 shadow-md"
+                    ? gradientFor("work") + " shadow-md"
                     : hasLong
-                      ? "bg-blue-200 shadow-md"
+                      ? gradientFor("long-break") + " shadow-md"
                       : hasBreak
-                        ? "bg-emerald-400 shadow-md"
+                        ? gradientFor("break") + " shadow-md"
                         : "bg-gray-400/70";
                   const count = Number(d.sessionsCompleted || 0);
                   return (
