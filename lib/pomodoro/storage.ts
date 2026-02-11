@@ -64,6 +64,11 @@ export const saveDailyStats = (stats: DailyStats): void => {
 
   try {
     localStorage.setItem(STATS_KEY + stats.date, JSON.stringify(stats));
+    try {
+      window.dispatchEvent(
+        new CustomEvent("pomodoro:stats-updated", { detail: stats }),
+      );
+    } catch {}
   } catch (error) {
     console.error("Failed to save daily stats:", error);
   }
@@ -71,7 +76,7 @@ export const saveDailyStats = (stats: DailyStats): void => {
 
 export const addSessionRecord = (
   record: SessionRecord,
-  date: string = getToday()
+  date: string = getToday(),
 ): DailyStats => {
   const stats = getDailyStats(date);
   stats.sessions.push(record);
@@ -82,7 +87,21 @@ export const addSessionRecord = (
   }
 
   saveDailyStats(stats);
+  try {
+    window.dispatchEvent(
+      new CustomEvent("pomodoro:session-added", { detail: record }),
+    );
+  } catch {}
   return stats;
+};
+
+export const saveSettingsAndNotify = (settings: PomodoroSettings): void => {
+  saveSettings(settings);
+  try {
+    window.dispatchEvent(
+      new CustomEvent("pomodoro:settings-saved", { detail: settings }),
+    );
+  } catch {}
 };
 
 export const getWeeklyStats = (): DailyStats[] => {

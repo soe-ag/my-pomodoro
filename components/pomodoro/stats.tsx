@@ -14,18 +14,35 @@ export function Stats() {
   const [week, setWeek] = useState(() => getWeeklyStats());
 
   useEffect(() => {
-    setToday(getDailyStats());
-    setWeek(getWeeklyStats());
+    const update = () => {
+      setToday(getDailyStats());
+      setWeek(getWeeklyStats());
+    };
+
+    update();
+
+    window.addEventListener("pomodoro:session-added", update);
+    window.addEventListener("pomodoro:stats-updated", update);
+    window.addEventListener("pomodoro:settings-saved", update);
+
+    return () => {
+      window.removeEventListener("pomodoro:session-added", update);
+      window.removeEventListener("pomodoro:stats-updated", update);
+      window.removeEventListener("pomodoro:settings-saved", update);
+    };
   }, []);
 
-  const totalSessions = today.sessions.length;
-  const sessionsCompleted = today.sessionsCompleted || 0;
+  const totalSessions = today.sessions?.length || 0;
+  const sessionsCompleted = Number(today.sessionsCompleted || 0);
   const completionRate =
     totalSessions > 0
       ? Math.round((sessionsCompleted / totalSessions) * 100)
       : 0;
 
-  const maxCompleted = Math.max(...week.map((d) => d.sessionsCompleted), 1);
+  const maxCompleted = Math.max(
+    ...week.map((d) => Number(d.sessionsCompleted || 0)),
+    1,
+  );
 
   return (
     <div className="mt-6">
@@ -33,8 +50,18 @@ export function Stats() {
         <div className="flex items-center justify-between">
           <div>
             <div className="text-sm text-gray-500">Today's Stats</div>
-            <div className="text-2xl font-semibold">{sessionsCompleted}</div>
-            <div className="text-sm text-gray-500">Sessions completed</div>
+            {today.sessions.length === 0 ? (
+              <div className="text-sm text-gray-500">
+                No sessions recorded today
+              </div>
+            ) : (
+              <>
+                <div className="text-2xl font-semibold">
+                  {sessionsCompleted}
+                </div>
+                <div className="text-sm text-gray-500">Sessions completed</div>
+              </>
+            )}
           </div>
 
           <div className="text-right">
@@ -50,25 +77,60 @@ export function Stats() {
 
         <div className="mt-4">
           <div className="text-sm text-gray-500 mb-2">Last 7 days</div>
-          <div className="flex items-end gap-2 h-24">
-            {week.map((d) => (
-              <div key={d.date} className="flex-1 text-center">
-                <div
-                  className="mx-auto bg-blue-500 rounded-t-sm"
-                  style={{
-                    height: `${(d.sessionsCompleted / maxCompleted) * 100}%`,
-                    width: "100%",
-                    maxWidth: 36,
-                  }}
-                />
-                <div className="text-xs text-gray-500 mt-1">
-                  {new Date(d.date).toLocaleDateString(undefined, {
-                    weekday: "short",
-                  })}
-                </div>
+          {week.every((d) => Number(d.sessionsCompleted || 0) === 0) ? (
+            <div className="text-sm text-gray-500">
+              No records for the last 7 days
+            </div>
+          ) : (
+            <div className="flex items-end gap-2 h-28">
+              <div className="mr-3 text-xs text-gray-500 flex flex-col justify-between h-full">
+                <div>{maxCompleted}</div>
+                <div className="opacity-70">{Math.ceil(maxCompleted / 2)}</div>
+                <div>0</div>
               </div>
-            ))}
-          </div>
+              <div className="flex-1 grid grid-cols-7 gap-2 items-end">
+                {week.map((d) => {
+                  const sessions = d.sessions || [];
+                  const hasWork = sessions.some((s: any) => s.type === "work");
+                  const hasLong = sessions.some(
+                    (s: any) => s.type === "long-break",
+                  );
+                  const hasBreak = sessions.some(
+                    (s: any) => s.type === "break",
+                  );
+                  const colorClass = hasWork
+                    ? "bg-blue-400 shadow-md"
+                    : hasLong
+                      ? "bg-blue-200 shadow-md"
+                      : hasBreak
+                        ? "bg-emerald-400 shadow-md"
+                        : "bg-gray-400/70";
+                  const count = Number(d.sessionsCompleted || 0);
+                  return (
+                    <div key={d.date} className="text-center">
+                      <div className="text-xs text-gray-200 mb-1">
+                        {count > 0 ? count : ""}
+                      </div>
+                      <div
+                        className={`mx-auto ${colorClass} rounded-t-sm transition-all`}
+                        style={{
+                          height: `${(count / Math.max(1, maxCompleted)) * 100}%`,
+                          width: "100%",
+                          maxWidth: 36,
+                          minHeight: count > 0 ? 12 : 4,
+                        }}
+                      />
+                      <div className="text-xs text-gray-400 mt-1">
+                        {new Date(d.date).toLocaleDateString(undefined, {
+                          weekday: "short",
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

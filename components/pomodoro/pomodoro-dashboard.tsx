@@ -37,10 +37,12 @@ export function PomodoroDashboard() {
   // Load initial stats and settings
   useEffect(() => {
     const s = loadSettings();
-    setSettings(s);
-    const stats = getDailyStats();
-    setSessionsCompleted(stats.sessionsCompleted);
-    setTimeRemaining(getSessionDuration("work", s));
+    Promise.resolve().then(() => {
+      setSettings(s);
+      const stats = getDailyStats();
+      setSessionsCompleted(stats.sessionsCompleted);
+      setTimeRemaining(getSessionDuration("work", s));
+    });
   }, []);
 
   // Request browser notification permission if needed
@@ -67,7 +69,7 @@ export function PomodoroDashboard() {
         ? "Work session completed! Time for a break."
         : "Break time is over! Ready for another session?";
 
-    toast(message);
+    toast(message, { duration: 10000 });
 
     // Browser notification
     if (s.notificationsEnabled) {
@@ -127,49 +129,108 @@ export function PomodoroDashboard() {
     setTimeRemaining(getSessionDuration("work", settings));
   };
 
-  const handleSettingsSave = (s: any) => {
+  const handleSettingsSave = (
+    s: import("@/lib/pomodoro/constants").PomodoroSettings,
+  ) => {
     setSettings(s);
-    // if current session type changed durations, adjust remaining time proportionally
     setTimeRemaining(getSessionDuration(sessionType, s));
   };
 
-  return (
-    <div className="w-full max-w-md mx-auto">
-      <Toaster />
-      <div className="flex justify-end mb-2">
-        <button
-          aria-label="Open settings"
-          className="p-2 rounded-md hover:bg-gray-100"
-          onClick={() => setIsSettingsOpen((v) => !v)}
-        >
-          <SettingsIcon className="w-5 h-5" />
-        </button>
-      </div>
-      <Card className="p-8 shadow-lg">
-        <TimerDisplay
-          timeRemaining={timeRemaining}
-          sessionType={sessionType}
-          sessionsCompleted={sessionsCompleted}
-          isRunning={isRunning}
-          sessionDuration={getSessionDuration(sessionType, settings)}
-        />
+  const gradientFor = (type: SessionType) => {
+    switch (type) {
+      case "work":
+        return "from-blue-600 to-purple-600";
+      case "break":
+        return "from-emerald-500 to-green-600";
+      case "long-break":
+        return "from-blue-400 to-blue-400";
+      default:
+        return "from-blue-600 to-purple-600";
+    }
+  };
 
-        <div className="mt-8">
-          <TimerControls
-            isRunning={isRunning}
-            onStart={handleStart}
-            onPause={handlePause}
-            onReset={handleReset}
+  const tabClass = (type: SessionType) =>
+    sessionType === type
+      ? `px-3 py-1 rounded-full cursor-pointer bg-linear-to-r ${gradientFor(type)} text-white` +
+        (type === "long-break" ? " text-blue-400" : "")
+      : `px-3 py-1 rounded-full cursor-pointer bg-white/5 text-gray-300 hover:bg-white/10`;
+
+  return (
+    <div
+      className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-6 items-start py-8 relative"
+      style={{
+        fontFamily: "ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto",
+      }}
+    >
+      <Toaster />
+      <div className="flex-1">
+        <Card className="p-8 shadow-lg relative">
+          <button
+            aria-label="Open settings"
+            onClick={() => setIsSettingsOpen((v) => !v)}
+            className="absolute top-4 right-4 p-2 rounded-md hover:bg-gray-100/10"
+          >
+            <SettingsIcon className="w-5 h-5 text-white" />
+          </button>
+          {isSettingsOpen && (
+            <div className="absolute top-0 left-full ml-6 w-80 z-50">
+              <SettingsPanel
+                onClose={() => setIsSettingsOpen(false)}
+                onSave={handleSettingsSave}
+                sessionType={sessionType}
+              />
+            </div>
+          )}
+          {/* Manual session tabs - keep space even when running to avoid layout shift */}
+          <div
+            className={`flex gap-2 justify-center mb-4 ${isRunning ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+          >
+            <button
+              className={tabClass("work")}
+              onClick={() => {
+                setSessionType("work");
+                setTimeRemaining(getSessionDuration("work", settings));
+              }}
+            >
+              Work
+            </button>
+            <button
+              className={tabClass("break")}
+              onClick={() => {
+                setSessionType("break");
+                setTimeRemaining(getSessionDuration("break", settings));
+              }}
+            >
+              Break
+            </button>
+            <button
+              className={tabClass("long-break")}
+              onClick={() => {
+                setSessionType("long-break");
+                setTimeRemaining(getSessionDuration("long-break", settings));
+              }}
+            >
+              Long Break
+            </button>
+          </div>
+          <TimerDisplay
+            timeRemaining={timeRemaining}
+            sessionType={sessionType}
+            sessionDuration={getSessionDuration(sessionType, settings)}
           />
-        </div>
-        <Stats />
-        {isSettingsOpen && (
-          <SettingsPanel
-            onClose={() => setIsSettingsOpen(false)}
-            onSave={handleSettingsSave}
-          />
-        )}
-      </Card>
+
+          <div className="mt-8">
+            <TimerControls
+              isRunning={isRunning}
+              onStart={handleStart}
+              onPause={handlePause}
+              onReset={handleReset}
+              sessionType={sessionType}
+            />
+          </div>
+          <Stats />
+        </Card>
+      </div>
     </div>
   );
 }

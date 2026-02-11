@@ -20,7 +20,7 @@ export const getSessionLabel = (sessionType: SessionType): string => {
     case "break":
       return "Short Break";
     case "long-break":
-      return "Long Break";
+      return "Long Break (Light Blue)";
     default:
       return "";
   }
@@ -29,7 +29,9 @@ export const getSessionLabel = (sessionType: SessionType): string => {
 export const playNotificationSound = (): void => {
   // Create a simple beep sound
   const audioContext = new (
-    window.AudioContext || (window as any).webkitAudioContext
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext
   )();
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
