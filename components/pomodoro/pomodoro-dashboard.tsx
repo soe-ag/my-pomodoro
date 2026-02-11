@@ -69,7 +69,7 @@ export function PomodoroDashboard() {
         ? "Work session completed! Time for a break."
         : "Break time is over! Ready for another session?";
 
-    toast(message, { duration: 10000 });
+    toast(message, { duration: 5000 });
 
     // Browser notification
     if (s.notificationsEnabled) {

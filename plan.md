@@ -45,3 +45,7 @@ A single-page, widget-style dashboard for a pomodoro timer with essential time-m
 - State Management: React hooks (useState, useEffect)
 - Storage: localStorage for daily records persistence
 
+
+## future Enhancements (Post-MVP)
+- 10 second warning before session ends
+- timer is not working correctly when switching tabs
