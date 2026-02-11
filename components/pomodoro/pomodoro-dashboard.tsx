@@ -4,15 +4,15 @@ import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
-import {
-  DEFAULT_WORK_DURATION,
-  DEFAULT_BREAK_DURATION,
-  SessionType,
-} from "@/lib/pomodoro/constants";
+import { DEFAULT_WORK_DURATION, SessionType } from "@/lib/pomodoro/constants";
 import {
   playNotificationSound,
   sendBrowserNotification,
+  getNextSession,
+  getSessionDuration,
 } from "@/lib/pomodoro/timer-logic";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import {
   getDailyStats,
   addSessionRecord,
@@ -20,16 +20,75 @@ import {
 } from "@/lib/pomodoro/storage";
 
 export function PomodoroDashboard() {
-  const [timeRemaining, setTimeRemaining] = useState(DEFAULT_WORK_DURATION);
+  const [settings, setSettings] = useState(() => loadSettings());
+  const [timeRemaining, setTimeRemaining] = useState(() =>
+    typeof window === "undefined"
+      ? DEFAULT_WORK_DURATION
+      : loadSettings().workDuration,
+  );
   const [isRunning, setIsRunning] = useState(false);
   const [sessionType, setSessionType] = useState<SessionType>("work");
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
 
-  // Load initial stats
+  // Load initial stats and settings
   useEffect(() => {
+    const s = loadSettings();
+    setSettings(s);
     const stats = getDailyStats();
     setSessionsCompleted(stats.sessionsCompleted);
+    setTimeRemaining(getSessionDuration("work", s));
   }, []);
+
+  // Request browser notification permission if needed
+  useEffect(() => {
+    const settings = loadSettings();
+    if (typeof window !== "undefined" && settings.notificationsEnabled) {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
+      }
+    }
+  }, []);
+
+  const handleSessionComplete = useCallback(() => {
+    const s = loadSettings();
+
+    // Play sound
+    if (s.soundEnabled) {
+      playNotificationSound();
+    }
+
+    // Prepare message and show sonner toast
+    const message =
+      sessionType === "work"
+        ? "Work session completed! Time for a break."
+        : "Break time is over! Ready for another session?";
+
+    toast(message);
+
+    // Browser notification
+    if (s.notificationsEnabled) {
+      sendBrowserNotification("Pomodoro Timer", {
+        body: message,
+        icon: "/images/sample-products/default.png",
+      });
+    }
+
+    // Record session
+    const duration = getSessionDuration(sessionType, s);
+    addSessionRecord({
+      date: new Date().toISOString().split("T")[0],
+      type: sessionType,
+      duration,
+      completed: true,
+      timestamp: Date.now(),
+    });
+
+    // Compute next session
+    const next = getNextSession(sessionType, sessionsCompleted, s);
+    setSessionType(next.next);
+    setTimeRemaining(next.duration);
+    setSessionsCompleted(next.sessionsCompleted);
+  }, [sessionType, sessionsCompleted]);
 
   // Timer interval
   useEffect(() => {
@@ -48,49 +107,7 @@ export function PomodoroDashboard() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isRunning]);
-
-  const handleSessionComplete = useCallback(() => {
-    const settings = loadSettings();
-
-    // Play notifications
-    if (settings.soundEnabled) {
-      playNotificationSound();
-    }
-
-    if (settings.notificationsEnabled) {
-      const message =
-        sessionType === "work"
-          ? "Work session completed! Time for a break."
-          : "Break time is over! Ready for another session?";
-
-      sendBrowserNotification("Pomodoro Timer", {
-        body: message,
-        icon: "/images/sample-products/default.png",
-      });
-    }
-
-    // Record session
-    const duration =
-      sessionType === "work" ? DEFAULT_WORK_DURATION : DEFAULT_BREAK_DURATION;
-    addSessionRecord({
-      date: new Date().toISOString().split("T")[0],
-      type: sessionType,
-      duration,
-      completed: true,
-      timestamp: Date.now(),
-    });
-
-    // Switch session type
-    if (sessionType === "work") {
-      setSessionsCompleted((prev) => prev + 1);
-      setSessionType("break");
-      setTimeRemaining(DEFAULT_BREAK_DURATION);
-    } else {
-      setSessionType("work");
-      setTimeRemaining(DEFAULT_WORK_DURATION);
-    }
-  }, [sessionType]);
+  }, [isRunning, handleSessionComplete]);
 
   const handleStart = () => {
     setIsRunning(true);
@@ -103,17 +120,19 @@ export function PomodoroDashboard() {
   const handleReset = () => {
     setIsRunning(false);
     setSessionType("work");
-    setTimeRemaining(DEFAULT_WORK_DURATION);
+    setTimeRemaining(getSessionDuration("work", settings));
   };
 
   return (
     <div className="w-full max-w-md mx-auto">
+      <Toaster />
       <Card className="p-8 shadow-lg">
         <TimerDisplay
           timeRemaining={timeRemaining}
           sessionType={sessionType}
           sessionsCompleted={sessionsCompleted}
           isRunning={isRunning}
+          sessionDuration={getSessionDuration(sessionType, settings)}
         />
 
         <div className="mt-8">

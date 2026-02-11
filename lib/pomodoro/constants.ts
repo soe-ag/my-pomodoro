@@ -1,6 +1,6 @@
 // Timer durations in seconds
-export const DEFAULT_WORK_DURATION = 25 * 60; // 25 minutes
-export const DEFAULT_BREAK_DURATION = 5 * 60; // 5 minutes
+export const DEFAULT_WORK_DURATION = 2 * 60; // 25 minutes
+export const DEFAULT_BREAK_DURATION = 1 * 60; // 5 minutes
 export const DEFAULT_LONG_BREAK_DURATION = 15 * 60; // 15 minutes
 
 export type SessionType = "work" | "break" | "long-break";

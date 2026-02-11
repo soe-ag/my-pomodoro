@@ -9,6 +9,7 @@ interface TimerDisplayProps {
   sessionType: SessionType;
   sessionsCompleted: number;
   isRunning: boolean;
+  sessionDuration: number;
 }
 
 export function TimerDisplay({
@@ -16,6 +17,7 @@ export function TimerDisplay({
   sessionType,
   sessionsCompleted,
   isRunning,
+  sessionDuration,
 }: TimerDisplayProps) {
   const displayTime = formatTime(timeRemaining);
   const sessionLabel = getSessionLabel(sessionType);
@@ -50,9 +52,16 @@ export function TimerDisplay({
           className="h-full bg-linear-to-r from-blue-500 to-purple-600 transition-all duration-300"
           style={{
             width: `${
-              sessionType === "work"
-                ? ((25 * 60 - timeRemaining) / (25 * 60)) * 100
-                : ((5 * 60 - timeRemaining) / (5 * 60)) * 100
+              sessionDuration > 0
+                ? Math.min(
+                    100,
+                    Math.max(
+                      0,
+                      ((sessionDuration - timeRemaining) / sessionDuration) *
+                        100,
+                    ),
+                  )
+                : 0
             }%`,
           }}
         />
