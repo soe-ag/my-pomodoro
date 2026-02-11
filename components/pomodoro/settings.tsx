@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Plus, Minus } from "lucide-react";
 import {
   loadSettings,
   saveSettings,
@@ -95,10 +96,39 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
     onClose?.();
   };
 
+  const handleResetDefaults = () => {
+    const defaults: PomodoroSettings = {
+      workDuration: 20 * 60,
+      breakDuration: 5 * 60,
+      longBreakDuration: 15 * 60,
+      soundEnabled: !!soundEnabled,
+      notificationsEnabled: !!notificationsEnabled,
+    };
+
+    // Update UI fields
+    setWorkMin(20);
+    setBreakMin(5);
+    setLongBreakMin(15);
+
+    // Persist and notify
+    if (saveSettingsAndNotify) {
+      saveSettingsAndNotify(defaults);
+    } else {
+      saveSettings(defaults);
+      try {
+        window.dispatchEvent(
+          new CustomEvent("pomodoro:settings-saved", { detail: defaults }),
+        );
+      } catch {}
+    }
+
+    onSave?.(defaults);
+  };
+
   return (
-    <Card className="p-4 bg-card text-card-foreground shadow-lg">
+    <Card className="w-full p-10 bg-card text-card-foreground shadow-lg">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Settings</h3>
+        <h3 className="text-2xl font-bold">Settings</h3>
         {/* <div className="text-sm text-gray-500">
           Configure durations & notifications
         </div> */}
@@ -111,9 +141,9 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
             aria-label="decrease work"
             size="sm"
             onClick={() => setWorkMin((v) => Math.max(1, v - 1))}
-            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm leading-none transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
-            -
+            <Minus className="w-3.5 h-3.5" />
           </Button>
 
           <input
@@ -129,9 +159,9 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
             aria-label="increase work"
             size="sm"
             onClick={() => setWorkMin((v) => v + 1)}
-            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm leading-none transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
-            +
+            <Plus className="w-3.5 h-3.5" />
           </Button>
         </div>
 
@@ -141,9 +171,9 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
             aria-label="decrease break"
             size="sm"
             onClick={() => setBreakMin((v) => Math.max(1, v - 1))}
-            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm leading-none transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
-            -
+            <Minus className="w-3.5 h-3.5" />
           </Button>
           <input
             type="number"
@@ -157,9 +187,9 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
             aria-label="increase break"
             size="sm"
             onClick={() => setBreakMin((v) => v + 1)}
-            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm leading-none transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
-            +
+            <Plus className="w-3.5 h-3.5" />
           </Button>
         </div>
 
@@ -169,9 +199,9 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
             aria-label="decrease long break"
             size="sm"
             onClick={() => setLongBreakMin((v) => Math.max(1, v - 1))}
-            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm leading-none transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
-            -
+            <Minus className="w-3.5 h-3.5" />
           </Button>
           <input
             type="number"
@@ -185,9 +215,9 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
             aria-label="increase long break"
             size="sm"
             onClick={() => setLongBreakMin((v) => v + 1)}
-            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm transform transition hover:-translate-y-0.5 hover:scale-105`}
+            className={`w-7 h-7 rounded-full bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-sm flex items-center justify-center text-sm leading-none transform transition hover:-translate-y-0.5 hover:scale-105`}
           >
-            +
+            <Plus className="w-3.5 h-3.5" />
           </Button>
         </div>
 
@@ -211,12 +241,18 @@ export function Settings({ onClose, onSave, sessionType }: SettingsProps) {
           />
         </div>
       </div>
-
-      <div className="mt-4 flex gap-2 justify-end">
+      <div className=" flex gap-2 justify-center md:justify-end flex-wrap">
+        <Button
+          variant="outline"
+          onClick={handleResetDefaults}
+          className="  text-white border-white/20 rounded-full px-4 py-2 shadow-sm hover:bg-white/5 dark:hover:bg-white/8 hover:text-white dark:hover:text-white hover:scale-105"
+        >
+          Reset Defaults
+        </Button>
         <Button
           variant="outline"
           onClick={onClose}
-          className="text-white border-white/20 rounded-full px-4 py-2 shadow-sm hover:bg-white/5 dark:hover:bg-white/8 hover:text-white dark:hover:text-white"
+          className="text-white border-white/20 rounded-full px-4 py-2 shadow-sm hover:bg-white/5 dark:hover:bg-white/8 hover:text-white dark:hover:text-white hover:scale-105"
         >
           Cancel
         </Button>

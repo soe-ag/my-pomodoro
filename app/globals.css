@@ -118,9 +118,6 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
   body {
     @apply bg-background text-foreground;
   }
@@ -130,6 +127,8 @@
 html, body {
   background-color: var(--background) !important;
   color: var(--foreground) !important;
+ 
+  min-height: 100vh;
 }
 
 /* hide number input spinners */

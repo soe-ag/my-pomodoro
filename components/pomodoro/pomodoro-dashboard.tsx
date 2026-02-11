@@ -5,8 +5,6 @@ import { Card } from "@/components/ui/card";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
 import { Stats } from "./stats";
-import SettingsPanel from "./settings";
-import { Settings as SettingsIcon } from "lucide-react";
 import { DEFAULT_WORK_DURATION, SessionType } from "@/lib/pomodoro/constants";
 import {
   playNotificationSound,
@@ -32,7 +30,6 @@ export function PomodoroDashboard() {
   const [isRunning, setIsRunning] = useState(false);
   const [sessionType, setSessionType] = useState<SessionType>("work");
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // Load initial stats and settings
   useEffect(() => {
@@ -129,13 +126,6 @@ export function PomodoroDashboard() {
     setTimeRemaining(getSessionDuration("work", settings));
   };
 
-  const handleSettingsSave = (
-    s: import("@/lib/pomodoro/constants").PomodoroSettings,
-  ) => {
-    setSettings(s);
-    setTimeRemaining(getSessionDuration(sessionType, s));
-  };
-
   const gradientFor = (type: SessionType) => {
     switch (type) {
       case "work":
@@ -157,7 +147,7 @@ export function PomodoroDashboard() {
 
   return (
     <div
-      className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-6 items-start py-8 relative"
+      className="w-full max-w-4xl mx-auto flex py-0 md:py-6 relative"
       style={{
         fontFamily: "ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto",
       }}
@@ -165,23 +155,6 @@ export function PomodoroDashboard() {
       <Toaster />
       <div className="flex-1">
         <Card className="p-8 shadow-lg relative">
-          <button
-            aria-label="Open settings"
-            onClick={() => setIsSettingsOpen((v) => !v)}
-            className="absolute top-4 right-4 p-2 rounded-md hover:bg-gray-100/10"
-          >
-            <SettingsIcon className="w-5 h-5 text-white" />
-          </button>
-          {isSettingsOpen && (
-            <div className="absolute top-0 left-full ml-6 w-80 z-50">
-              <SettingsPanel
-                onClose={() => setIsSettingsOpen(false)}
-                onSave={handleSettingsSave}
-                sessionType={sessionType}
-              />
-            </div>
-          )}
-          {/* Manual session tabs - keep space even when running to avoid layout shift */}
           <div
             className={`flex gap-2 justify-center mb-4 ${isRunning ? "opacity-0 pointer-events-none" : "opacity-100"}`}
           >
@@ -219,7 +192,7 @@ export function PomodoroDashboard() {
             sessionDuration={getSessionDuration(sessionType, settings)}
           />
 
-          <div className="mt-8">
+          <div className="mt-4">
             <TimerControls
               isRunning={isRunning}
               onStart={handleStart}
