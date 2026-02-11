@@ -134,9 +134,11 @@ export function Stats() {
                         }}
                       />
                       <div className="text-xs text-gray-400 mt-1">
-                        {new Date(d.date).toLocaleDateString(undefined, {
-                          weekday: "short",
-                        })}
+                        {
+                          ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
+                            new Date(d.date).getDay()
+                          ]
+                        }
                       </div>
                     </div>
                   );

@@ -5,9 +5,14 @@ import { Card } from "@/components/ui/card";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
 import { Stats } from "./stats";
-import { DEFAULT_WORK_DURATION, SessionType } from "@/lib/pomodoro/constants";
+import {
+  DEFAULT_WORK_DURATION,
+  SessionType,
+  DEFAULT_SETTINGS,
+} from "@/lib/pomodoro/constants";
 import {
   playNotificationSound,
+  playChirpSound,
   sendBrowserNotification,
   getNextSession,
   getSessionDuration,
@@ -21,11 +26,9 @@ import {
 } from "@/lib/pomodoro/storage";
 
 export function PomodoroDashboard() {
-  const [settings, setSettings] = useState(() => loadSettings());
-  const [timeRemaining, setTimeRemaining] = useState(() =>
-    typeof window === "undefined"
-      ? DEFAULT_WORK_DURATION
-      : loadSettings().workDuration,
+  const [settings, setSettings] = useState(() => DEFAULT_SETTINGS);
+  const [timeRemaining, setTimeRemaining] = useState(
+    () => DEFAULT_WORK_DURATION,
   );
   const [isRunning, setIsRunning] = useState(false);
   const [sessionType, setSessionType] = useState<SessionType>("work");
@@ -114,6 +117,11 @@ export function PomodoroDashboard() {
 
   const handleStart = () => {
     setIsRunning(true);
+    try {
+      if (typeof window !== "undefined" && settings?.soundEnabled) {
+        playChirpSound();
+      }
+    } catch {}
   };
 
   const handlePause = () => {
