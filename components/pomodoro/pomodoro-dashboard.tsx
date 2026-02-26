@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
@@ -33,6 +33,15 @@ export function PomodoroDashboard() {
   const [isRunning, setIsRunning] = useState(false);
   const [sessionType, setSessionType] = useState<SessionType>("work");
   const [sessionsCompleted, setSessionsCompleted] = useState(0);
+
+  // Ref to always hold the latest timeRemaining for use inside effects
+  const timeRemainingRef = useRef(timeRemaining);
+  useEffect(() => {
+    timeRemainingRef.current = timeRemaining;
+  }, [timeRemaining]);
+
+  // Ref to store the absolute end timestamp so the timer is accurate even in background tabs
+  const endTimeRef = useRef<number>(0);
 
   // Load initial stats and settings
   useEffect(() => {
@@ -96,21 +105,24 @@ export function PomodoroDashboard() {
     setSessionsCompleted(next.sessionsCompleted);
   }, [sessionType, sessionsCompleted]);
 
-  // Timer interval
+  // Timer interval — uses an absolute end timestamp so it stays accurate in background tabs
   useEffect(() => {
     if (!isRunning) return;
 
+    // Set the end time based on current remaining time when the timer (re)starts
+    endTimeRef.current = Date.now() + timeRemainingRef.current * 1000;
+
     const interval = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          // Timer finished
-          setIsRunning(false);
-          handleSessionComplete();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+      const remaining = Math.max(
+        0,
+        Math.round((endTimeRef.current - Date.now()) / 1000),
+      );
+      setTimeRemaining(remaining);
+      if (remaining <= 0) {
+        setIsRunning(false);
+        handleSessionComplete();
+      }
+    }, 500);
 
     return () => clearInterval(interval);
   }, [isRunning, handleSessionComplete]);
