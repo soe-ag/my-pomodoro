@@ -8,6 +8,10 @@ export interface TimerState {
 }
 
 type AudioContextConstructor = typeof AudioContext;
+type DurationSettingKey =
+  | "workDuration"
+  | "breakDuration"
+  | "longBreakDuration";
 
 const SESSION_LABELS: Record<SessionType, string> = {
   work: "Work Session",
@@ -15,7 +19,7 @@ const SESSION_LABELS: Record<SessionType, string> = {
   "long-break": "Long Break (Light Blue)",
 };
 
-const SESSION_DURATIONS: Record<SessionType, keyof PomodoroSettings> = {
+const SESSION_DURATIONS: Record<SessionType, DurationSettingKey> = {
   work: "workDuration",
   break: "breakDuration",
   "long-break": "longBreakDuration",
