@@ -7,6 +7,32 @@ export interface TimerState {
   sessionsCompleted: number;
 }
 
+type AudioContextConstructor = typeof AudioContext;
+
+const SESSION_LABELS: Record<SessionType, string> = {
+  work: "Work Session",
+  break: "Short Break",
+  "long-break": "Long Break (Light Blue)",
+};
+
+const SESSION_DURATIONS: Record<SessionType, keyof PomodoroSettings> = {
+  work: "workDuration",
+  break: "breakDuration",
+  "long-break": "longBreakDuration",
+};
+
+const getAudioContextConstructor = (): AudioContextConstructor | undefined => {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  return (
+    window.AudioContext ||
+    (window as Window & { webkitAudioContext?: AudioContextConstructor })
+      .webkitAudioContext
+  );
+};
+
 export const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
@@ -14,25 +40,14 @@ export const formatTime = (seconds: number): string => {
 };
 
 export const getSessionLabel = (sessionType: SessionType): string => {
-  switch (sessionType) {
-    case "work":
-      return "Work Session";
-    case "break":
-      return "Short Break";
-    case "long-break":
-      return "Long Break (Light Blue)";
-    default:
-      return "";
-  }
+  return SESSION_LABELS[sessionType];
 };
 
 export const playNotificationSound = (): void => {
-  // Create a simple beep sound
-  const audioContext = new (
-    window.AudioContext ||
-    (window as unknown as { webkitAudioContext?: typeof AudioContext })
-      .webkitAudioContext
-  )();
+  const AudioCtx = getAudioContextConstructor();
+  if (!AudioCtx) return;
+
+  const audioContext = new AudioCtx();
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
 
@@ -53,8 +68,7 @@ export const playNotificationSound = (): void => {
 };
 
 export const playChirpSound = (): void => {
-  const AudioCtx =
-    (window as any).AudioContext || (window as any).webkitAudioContext;
+  const AudioCtx = getAudioContextConstructor();
   if (!AudioCtx) return;
 
   const audioContext = new AudioCtx();
@@ -99,16 +113,7 @@ export const getSessionDuration = (
   settings?: PomodoroSettings,
 ): number => {
   const s = settings ?? DEFAULT_SETTINGS;
-  switch (sessionType) {
-    case "work":
-      return s.workDuration;
-    case "break":
-      return s.breakDuration;
-    case "long-break":
-      return s.longBreakDuration;
-    default:
-      return s.workDuration;
-  }
+  return s[SESSION_DURATIONS[sessionType]];
 };
 
 export const getNextSession = (
