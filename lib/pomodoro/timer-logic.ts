@@ -40,7 +40,7 @@ export const formatTime = (seconds: number): string => {
 };
 
 export const getSessionLabel = (sessionType: SessionType): string => {
-  return SESSION_LABELS[sessionType];
+  return SESSION_LABELS[sessionType] ?? "";
 };
 
 export const playNotificationSound = (): void => {
@@ -113,7 +113,7 @@ export const getSessionDuration = (
   settings?: PomodoroSettings,
 ): number => {
   const s = settings ?? DEFAULT_SETTINGS;
-  return s[SESSION_DURATIONS[sessionType]];
+  return s[SESSION_DURATIONS[sessionType]] ?? s.workDuration;
 };
 
 export const getNextSession = (
