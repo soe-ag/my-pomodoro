@@ -12,7 +12,7 @@ type AudioContextConstructor = typeof AudioContext;
 const SESSION_LABELS: Record<SessionType, string> = {
   work: "Work Session",
   break: "Short Break",
-  "long-break": "Long Break",
+  "long-break": "Long Break (Light Blue)",
 };
 
 const SESSION_DURATIONS: Record<SessionType, keyof PomodoroSettings> = {
