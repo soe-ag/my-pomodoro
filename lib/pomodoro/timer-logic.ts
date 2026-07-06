@@ -1,11 +1,77 @@
-import { SessionType, PomodoroSettings, DEFAULT_SETTINGS } from "./constants";
+import {
+  DEFAULT_SETTINGS,
+  PomodoroSettings,
+  SessionType,
+  WORK_SESSIONS_PER_CYCLE,
+} from "./constants";
 
 export interface TimerState {
-  timeRemaining: number; // in seconds
+  timeRemaining: number;
   isRunning: boolean;
   sessionType: SessionType;
   sessionsCompleted: number;
 }
+
+let sharedAudioContext: AudioContext | null = null;
+
+export const resetAudioContextForTests = (): void => {
+  if (process.env.NODE_ENV === "test") {
+    sharedAudioContext = null;
+  }
+};
+
+const getAudioContext = (): AudioContext | null => {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  if (sharedAudioContext) {
+    return sharedAudioContext;
+  }
+
+  const BrowserAudioContext =
+    window.AudioContext ??
+    (window as Window & { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext;
+
+  sharedAudioContext = BrowserAudioContext ? new BrowserAudioContext() : null;
+  return sharedAudioContext;
+};
+
+export const unlockAudio = (): void => {
+  const audioContext = getAudioContext();
+
+  if (audioContext?.state === "suspended") {
+    void audioContext.resume().catch(() => undefined);
+  }
+};
+
+const playTone = (
+  configure: (
+    context: AudioContext,
+    oscillator: OscillatorNode,
+    gain: GainNode,
+  ) => number,
+): void => {
+  const audioContext = getAudioContext();
+  if (!audioContext) {
+    return;
+  }
+
+  if (audioContext.state === "suspended") {
+    void audioContext.resume().catch(() => undefined);
+  }
+
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  const stopAfter = configure(audioContext, oscillator, gainNode);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + stopAfter);
+};
 
 export const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);
@@ -16,124 +82,86 @@ export const formatTime = (seconds: number): string => {
 export const getSessionLabel = (sessionType: SessionType): string => {
   switch (sessionType) {
     case "work":
-      return "Work Session";
+      return "Focus Session";
     case "break":
       return "Short Break";
     case "long-break":
-      return "Long Break (Light Blue)";
-    default:
-      return "";
+      return "Long Break";
   }
 };
 
 export const playNotificationSound = (): void => {
-  // Create a simple beep sound
-  const audioContext = new (
-    window.AudioContext ||
-    (window as unknown as { webkitAudioContext?: typeof AudioContext })
-      .webkitAudioContext
-  )();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-
-  oscillator.frequency.value = 800;
-  oscillator.type = "sine";
-
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(
-    0.01,
-    audioContext.currentTime + 0.5,
-  );
-
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.5);
+  playTone((context, oscillator, gainNode) => {
+    oscillator.frequency.value = 880;
+    oscillator.type = "sine";
+    gainNode.gain.setValueAtTime(0.2, context.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.45);
+    return 0.45;
+  });
 };
 
 export const playChirpSound = (): void => {
-  const AudioCtx =
-    (window as any).AudioContext || (window as any).webkitAudioContext;
-  if (!AudioCtx) return;
-
-  const audioContext = new AudioCtx();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-
-  oscillator.type = "triangle";
-  oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
-  oscillator.frequency.linearRampToValueAtTime(
-    1200,
-    audioContext.currentTime + 0.18,
-  );
-
-  gainNode.gain.setValueAtTime(0.0001, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(
-    0.18,
-    audioContext.currentTime + 0.02,
-  );
-  gainNode.gain.exponentialRampToValueAtTime(
-    0.001,
-    audioContext.currentTime + 0.25,
-  );
-
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.25);
+  playTone((context, oscillator, gainNode) => {
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(520, context.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(1040, context.currentTime + 0.18);
+    gainNode.gain.setValueAtTime(0.0001, context.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.14, context.currentTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.24);
+    return 0.24;
+  });
 };
 
 export const sendBrowserNotification = (
   title: string,
   options?: NotificationOptions,
 ): void => {
-  if ("Notification" in window && Notification.permission === "granted") {
-    new Notification(title, options);
+  if (
+    typeof window === "undefined" ||
+    !("Notification" in window) ||
+    Notification.permission !== "granted"
+  ) {
+    return;
   }
+
+  new Notification(title, options);
 };
 
 export const getSessionDuration = (
   sessionType: SessionType,
-  settings?: PomodoroSettings,
+  settings: PomodoroSettings = DEFAULT_SETTINGS,
 ): number => {
-  const s = settings ?? DEFAULT_SETTINGS;
   switch (sessionType) {
     case "work":
-      return s.workDuration;
+      return settings.workDuration;
     case "break":
-      return s.breakDuration;
+      return settings.breakDuration;
     case "long-break":
-      return s.longBreakDuration;
-    default:
-      return s.workDuration;
+      return settings.longBreakDuration;
   }
 };
 
 export const getNextSession = (
   current: SessionType,
   sessionsCompleted: number,
-  settings?: PomodoroSettings,
+  settings: PomodoroSettings = DEFAULT_SETTINGS,
 ): { next: SessionType; duration: number; sessionsCompleted: number } => {
-  const s = settings ?? DEFAULT_SETTINGS;
-
   if (current === "work") {
-    const newCount = sessionsCompleted + 1;
-    if (newCount % 4 === 0) {
-      return {
-        next: "long-break",
-        duration: s.longBreakDuration,
-        sessionsCompleted: newCount,
-      };
-    }
+    const nextCompletedCount = sessionsCompleted + 1;
+    const nextType =
+      nextCompletedCount % WORK_SESSIONS_PER_CYCLE === 0 ? "long-break" : "break";
+
     return {
-      next: "break",
-      duration: s.breakDuration,
-      sessionsCompleted: newCount,
+      next: nextType,
+      duration: getSessionDuration(nextType, settings),
+      sessionsCompleted: nextCompletedCount,
     };
   }
 
-  // If currently on a break (short or long), always go to work
-  return { next: "work", duration: s.workDuration, sessionsCompleted };
+  return {
+    next: "work",
+    duration: settings.workDuration,
+    sessionsCompleted,
+  };
 };
+

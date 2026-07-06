@@ -1,7 +1,8 @@
 "use client";
 
-import { formatTime } from "@/lib/pomodoro/timer-logic";
 import { SessionType } from "@/lib/pomodoro/constants";
+import { getSessionTheme } from "@/lib/pomodoro/session-theme";
+import { formatTime } from "@/lib/pomodoro/timer-logic";
 
 interface TimerDisplayProps {
   timeRemaining: number;
@@ -14,34 +15,34 @@ export function TimerDisplay({
   sessionType,
   sessionDuration,
 }: TimerDisplayProps) {
-  const progress = ((sessionDuration - timeRemaining) / sessionDuration) * 100;
-
-  const gradientFor = (type: SessionType) => {
-    switch (type) {
-      case "work":
-        return "from-blue-600 to-purple-600";
-      case "break":
-        return "from-emerald-500 to-green-600";
-      case "long-break":
-        return "from-blue-400 to-blue-400";
-      default:
-        return "from-blue-600 to-purple-600";
-    }
-  };
+  const theme = getSessionTheme(sessionType);
+  const progress =
+    sessionDuration > 0
+      ? Math.min(100, Math.max(0, ((sessionDuration - timeRemaining) / sessionDuration) * 100))
+      : 0;
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <div className="flex items-center justify-center">
+    <div className="flex w-full flex-col items-center gap-5">
+      <div
+        className={`inline-flex items-center rounded-full border px-4 py-1 text-xs font-medium uppercase tracking-[0.28em] ${theme.badgeClassName}`}
+      >
+        {theme.label}
+      </div>
+
+      <div className="text-center">
         <div
-          className={`text-center text-8xl md:text-9xl lg:text-[7rem] font-time font-extrabold leading-none text-transparent bg-clip-text bg-linear-to-r ${gradientFor(sessionType)}`}
+          className={`bg-linear-to-r ${theme.textClassName} bg-clip-text text-7xl font-semibold tracking-tight text-transparent sm:text-8xl lg:text-[7rem]`}
         >
           {formatTime(timeRemaining)}
         </div>
+        <p className="mt-3 max-w-md text-sm text-slate-300 sm:text-base">
+          {theme.description}
+        </p>
       </div>
 
-      <div className="w-full mt-6 bg-gray-200/20 dark:bg-white/5 rounded-full h-4 overflow-hidden">
+      <div className="w-full max-w-2xl rounded-full border border-white/10 bg-white/6 p-1.5">
         <div
-          className={`h-4 rounded-full transition-width duration-200 bg-linear-to-r ${sessionType === "work" ? "from-blue-600 to-purple-600" : sessionType === "break" ? "from-emerald-500 to-green-600" : "from-blue-400 to-blue-400"}`}
+          className={`h-3 rounded-full bg-linear-to-r ${theme.progressClassName} transition-[width] duration-300 ease-out`}
           style={{ width: `${progress}%` }}
         />
       </div>

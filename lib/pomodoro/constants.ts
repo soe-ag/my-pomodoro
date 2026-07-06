@@ -1,9 +1,11 @@
-// Timer durations in seconds
-export const DEFAULT_WORK_DURATION = 2 * 60; // 25 minutes
-export const DEFAULT_BREAK_DURATION = 1 * 60; // 5 minutes
-export const DEFAULT_LONG_BREAK_DURATION = 15 * 60; // 15 minutes
+export const SESSION_TYPES = ["work", "break", "long-break"] as const;
 
-export type SessionType = "work" | "break" | "long-break";
+// Timer durations in seconds
+export const DEFAULT_WORK_DURATION = 25 * 60;
+export const DEFAULT_BREAK_DURATION = 5 * 60;
+export const DEFAULT_LONG_BREAK_DURATION = 15 * 60;
+
+export type SessionType = (typeof SESSION_TYPES)[number];
 
 export interface PomodoroSettings {
   workDuration: number;
@@ -20,3 +22,5 @@ export const DEFAULT_SETTINGS: PomodoroSettings = {
   soundEnabled: true,
   notificationsEnabled: true,
 };
+
+export const WORK_SESSIONS_PER_CYCLE = 4;

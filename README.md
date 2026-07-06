@@ -1,81 +1,48 @@
 # My Pomodoro
 
-A simple and clean Pomodoro timer built with **Next.js** and **TypeScript**.
-Designed to help users stay focused using the Pomodoro technique with a minimal, distraction-free interface.
-
-**Live Demo:** https://my-pomodoro-indol.vercel.app ([GitHub][1])
-
----
+A refined Pomodoro timer built with Next.js, React, TypeScript, and Tailwind CSS.
+It focuses on a stronger timer module design, clearer session flow, and lightweight local persistence for daily stats.
 
 ## Features
 
-* Pomodoro countdown timer
-* Start, pause, and reset controls
-* Clean and minimal UI
-* Responsive layout for desktop and mobile
-* Built with modern React (Next.js App Router)
-
----
+- Configurable focus, short break, and long break durations
+- Start, pause, reset, and manual session switching
+- Automatic session progression with long-break cadence
+- Toast and desktop notifications
+- Daily stats and a 7-day activity view
+- Responsive interface for desktop and mobile
 
 ## Tech Stack
 
-* **Framework:** Next.js
-* **Language:** TypeScript
-* **Styling:** CSS
-* **Deployment:** Vercel
-
----
+- Next.js App Router
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui primitives
+- localStorage for settings and stats
 
 ## Project Structure
 
-```
-app/            # Next.js app router pages
-components/     # Reusable UI components
-lib/            # Utility functions
-public/         # Static assets
-```
-
----
-
-## Getting Started
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/soe-ag/my-pomodoro.git
-cd my-pomodoro
+```text
+app/                   Next.js routes and global styles
+components/pomodoro/   Timer UI and stats widgets
+components/ui/         Shared UI primitives
+lib/pomodoro/          Timer rules, storage, theme metadata, hook
+lib/                   Shared utilities
 ```
 
-### 2. Install dependencies
+## Development
 
 ```bash
 npm install
-```
-
-### 3. Run the development server
-
-```bash
 npm run dev
 ```
 
-Open http://localhost:3000 in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
----
-
-## Build for Production
+## Verification
 
 ```bash
+npm run lint
 npm run build
-npm start
 ```
-
----
-
-## Purpose of This Project
-
-This project was created as a **practice application** to:
-
-* Improve proficiency with Next.js App Router
-* Practice TypeScript in a real project
-* Build a simple, useful productivity tool
-* Testing Vibe Coding AI capabilities

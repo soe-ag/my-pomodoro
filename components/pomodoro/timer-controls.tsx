@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { SessionType } from "@/lib/pomodoro/constants";
+import { getSessionTheme } from "@/lib/pomodoro/session-theme";
 
 interface TimerControlsProps {
   isRunning: boolean;
@@ -19,28 +20,17 @@ export function TimerControls({
   onReset,
   sessionType,
 }: TimerControlsProps) {
-  const gradientFor = (type: SessionType) => {
-    switch (type) {
-      case "work":
-        return "from-blue-600 to-purple-600";
-      case "break":
-        return "from-emerald-500 to-green-600";
-      case "long-break":
-        return "from-blue-400 to-blue-400";
-      default:
-        return "from-blue-600 to-purple-600";
-    }
-  };
+  const theme = getSessionTheme(sessionType);
+
   return (
-    <div className="flex items-center justify-center gap-4">
-      {/* Start / Pause Button */}
+    <div className="flex flex-wrap items-center justify-center gap-3">
       {!isRunning ? (
         <Button
           onClick={onStart}
           size="lg"
-          className={`gap-2 bg-linear-to-r ${gradientFor(sessionType)} text-white shadow-2xl ring-1 ring-white/20 rounded-full px-6 py-3 transform transition-transform hover:-translate-y-1 hover:scale-105 active:scale-95`}
+          className={`min-w-32 rounded-full bg-linear-to-r ${theme.buttonClassName} px-6 shadow-[0_18px_45px_rgba(15,23,42,0.25)] transition-transform hover:-translate-y-0.5`}
         >
-          <Play className="w-5 h-5" />
+          <Play className="size-4" />
           Start
         </Button>
       ) : (
@@ -48,21 +38,20 @@ export function TimerControls({
           onClick={onPause}
           size="lg"
           variant="outline"
-          className={`gap-2 cursor-pointer text-white border-white/20 bg-white/5 dark:bg-black/40 ring-1 ring-white/5 rounded-full shadow-sm transform transition hover:scale-105 hover:text-white dark:hover:text-white`}
+          className="min-w-32 rounded-full border-white/15 bg-white/8 px-6 text-white backdrop-blur-sm hover:bg-white/12"
         >
-          <Pause className="w-5 h-5" />
+          <Pause className="size-4" />
           Pause
         </Button>
       )}
 
-      {/* Reset Button */}
       <Button
         onClick={onReset}
         size="lg"
         variant="outline"
-        className={`gap-2 cursor-pointer text-white border-white/20 bg-transparent dark:bg-black/30 ring-1 ring-white/5 rounded-full shadow-sm transform transition hover:bg-white/5 dark:hover:bg-white/8 hover:scale-105 hover:text-white dark:hover:text-white`}
+        className="rounded-full border-white/15 bg-transparent px-6 text-white hover:bg-white/8"
       >
-        <RotateCcw className="w-5 h-5" />
+        <RotateCcw className="size-4" />
         Reset
       </Button>
     </div>

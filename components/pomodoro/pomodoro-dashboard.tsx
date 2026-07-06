@@ -1,217 +1,148 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Card } from "@/components/ui/card";
-import { TimerDisplay } from "./timer-display";
-import { TimerControls } from "./timer-controls";
+import Link from "next/link";
+import { ChartNoAxesColumn, Settings2 } from "lucide-react";
 import { Stats } from "./stats";
-import {
-  DEFAULT_WORK_DURATION,
-  SessionType,
-  DEFAULT_SETTINGS,
-} from "@/lib/pomodoro/constants";
-import {
-  playNotificationSound,
-  playChirpSound,
-  sendBrowserNotification,
-  getNextSession,
-  getSessionDuration,
-} from "@/lib/pomodoro/timer-logic";
-import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
-import {
-  getDailyStats,
-  addSessionRecord,
-  loadSettings,
-} from "@/lib/pomodoro/storage";
+import { TimerControls } from "./timer-controls";
+import { TimerDisplay } from "./timer-display";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { SESSION_TYPES } from "@/lib/pomodoro/constants";
+import { getSessionTheme } from "@/lib/pomodoro/session-theme";
+import { usePomodoro } from "@/lib/pomodoro/use-pomodoro";
 
 export function PomodoroDashboard() {
-  const [settings, setSettings] = useState(() => DEFAULT_SETTINGS);
-  const [timeRemaining, setTimeRemaining] = useState(
-    () => DEFAULT_WORK_DURATION,
-  );
-  const [isRunning, setIsRunning] = useState(false);
-  const [sessionType, setSessionType] = useState<SessionType>("work");
-  const [sessionsCompleted, setSessionsCompleted] = useState(0);
+  const {
+    currentDuration,
+    isRunning,
+    pause,
+    reset,
+    selectSession,
+    sessionType,
+    sessionsCompleted,
+    settings,
+    start,
+    timeRemaining,
+  } = usePomodoro();
 
-  // Load initial stats and settings
-  useEffect(() => {
-    const s = loadSettings();
-    Promise.resolve().then(() => {
-      setSettings(s);
-      const stats = getDailyStats();
-      setSessionsCompleted(stats.sessionsCompleted);
-      setTimeRemaining(getSessionDuration("work", s));
-    });
-  }, []);
-
-  // Request browser notification permission if needed
-  useEffect(() => {
-    const settings = loadSettings();
-    if (typeof window !== "undefined" && settings.notificationsEnabled) {
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission().catch(() => {});
-      }
-    }
-  }, []);
-
-  const handleSessionComplete = useCallback(() => {
-    const s = loadSettings();
-
-    // Play sound
-    if (s.soundEnabled) {
-      playNotificationSound();
-    }
-
-    // Prepare message and show sonner toast
-    const message =
-      sessionType === "work"
-        ? "Work session completed! Time for a break."
-        : "Break time is over! Ready for another session?";
-
-    toast(message, { duration: 5000 });
-
-    // Browser notification
-    if (s.notificationsEnabled) {
-      sendBrowserNotification("Pomodoro Timer", {
-        body: message,
-        icon: "/images/sample-products/default.png",
-      });
-    }
-
-    // Record session
-    const duration = getSessionDuration(sessionType, s);
-    addSessionRecord({
-      date: new Date().toISOString().split("T")[0],
-      type: sessionType,
-      duration,
-      completed: true,
-      timestamp: Date.now(),
-    });
-
-    // Compute next session
-    const next = getNextSession(sessionType, sessionsCompleted, s);
-    setSessionType(next.next);
-    setTimeRemaining(next.duration);
-    setSessionsCompleted(next.sessionsCompleted);
-  }, [sessionType, sessionsCompleted]);
-
-  // Timer interval
-  useEffect(() => {
-    if (!isRunning) return;
-
-    const interval = setInterval(() => {
-      setTimeRemaining((prev) => {
-        if (prev <= 1) {
-          // Timer finished
-          setIsRunning(false);
-          handleSessionComplete();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [isRunning, handleSessionComplete]);
-
-  const handleStart = () => {
-    setIsRunning(true);
-    try {
-      if (typeof window !== "undefined" && settings?.soundEnabled) {
-        playChirpSound();
-      }
-    } catch {}
-  };
-
-  const handlePause = () => {
-    setIsRunning(false);
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setSessionType("work");
-    setTimeRemaining(getSessionDuration("work", settings));
-  };
-
-  const gradientFor = (type: SessionType) => {
-    switch (type) {
-      case "work":
-        return "from-blue-600 to-purple-600";
-      case "break":
-        return "from-emerald-500 to-green-600";
-      case "long-break":
-        return "from-blue-400 to-blue-400";
-      default:
-        return "from-blue-600 to-purple-600";
-    }
-  };
-
-  const tabClass = (type: SessionType) =>
-    sessionType === type
-      ? `px-3 py-1 rounded-full cursor-pointer bg-linear-to-r ${gradientFor(type)} text-white` +
-        (type === "long-break" ? " text-blue-400" : "")
-      : `px-3 py-1 rounded-full cursor-pointer bg-white/5 text-gray-300 hover:bg-white/10`;
+  const sessionTheme = getSessionTheme(sessionType);
+  const completedInCycle = sessionsCompleted % 4;
+  const nextLongBreakIn = completedInCycle === 0 ? 4 : 4 - completedInCycle;
 
   return (
-    <div
-      className="w-full max-w-4xl mx-auto flex py-0 md:py-6 relative"
-      style={{
-        fontFamily: "ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto",
-      }}
-    >
-      <Toaster />
-      <div className="flex-1">
-        <Card className="p-8 shadow-lg relative">
-          <div
-            className={`flex gap-2 justify-center mb-4 ${isRunning ? "opacity-0 pointer-events-none" : "opacity-100"}`}
-          >
-            <button
-              className={tabClass("work")}
-              onClick={() => {
-                setSessionType("work");
-                setTimeRemaining(getSessionDuration("work", settings));
-              }}
-            >
-              Work
-            </button>
-            <button
-              className={tabClass("break")}
-              onClick={() => {
-                setSessionType("break");
-                setTimeRemaining(getSessionDuration("break", settings));
-              }}
-            >
-              Break
-            </button>
-            <button
-              className={tabClass("long-break")}
-              onClick={() => {
-                setSessionType("long-break");
-                setTimeRemaining(getSessionDuration("long-break", settings));
-              }}
-            >
-              Long Break
-            </button>
-          </div>
-          <TimerDisplay
-            timeRemaining={timeRemaining}
-            sessionType={sessionType}
-            sessionDuration={getSessionDuration(sessionType, settings)}
-          />
+    <div className="w-full space-y-6">
+      <Card
+        className={`overflow-hidden rounded-[2rem] border bg-slate-950/75 p-6 shadow-[0_30px_120px_rgba(2,6,23,0.45)] backdrop-blur sm:p-8 ${sessionTheme.panelClassName}`}
+      >
+        <div className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:items-start">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-slate-400">
+                <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-slate-200">
+                  Pomodoro Rhythm
+                </span>
+                <span>{sessionsCompleted} focus blocks finished today</span>
+              </div>
 
-          <div className="mt-4">
+              <div className="max-w-2xl space-y-3">
+                <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+                  Build a steadier focus loop instead of chasing urgency.
+                </h2>
+                <p className="text-base leading-7 text-slate-300 sm:text-lg">
+                  One deep module now owns timer flow, session rules, and notifications. The UI is lighter, and the work rhythm is clearer.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {SESSION_TYPES.map((type) => {
+                const theme = getSessionTheme(type);
+                const isActive = sessionType === type;
+
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => selectSession(type)}
+                    disabled={isRunning}
+                    className={[
+                      "rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+                      isActive
+                        ? `border-transparent bg-linear-to-r ${theme.buttonClassName}`
+                        : "border-white/12 bg-white/6 text-slate-200 hover:bg-white/10",
+                    ].join(" ")}
+                  >
+                    {theme.shortLabel}
+                  </button>
+                );
+              })}
+            </div>
+
+            <TimerDisplay
+              timeRemaining={timeRemaining}
+              sessionType={sessionType}
+              sessionDuration={currentDuration}
+            />
+
             <TimerControls
               isRunning={isRunning}
-              onStart={handleStart}
-              onPause={handlePause}
-              onReset={handleReset}
+              onPause={pause}
+              onReset={reset}
+              onStart={start}
               sessionType={sessionType}
             />
           </div>
-          <Stats />
-        </Card>
-      </div>
+
+          <div className="space-y-4">
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/6 p-5">
+              <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Cycle status</p>
+              <div className="mt-3 text-3xl font-semibold text-white">
+                {completedInCycle}/4
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                {nextLongBreakIn} more completed focus session{nextLongBreakIn === 1 ? "" : "s"} until the next long break.
+              </p>
+            </div>
+
+            <div className="rounded-[1.75rem] border border-white/10 bg-white/6 p-5">
+              <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Current durations</p>
+              <dl className="mt-4 space-y-3 text-sm text-slate-200">
+                <div className="flex items-center justify-between gap-4">
+                  <dt>Focus</dt>
+                  <dd>{Math.round(settings.workDuration / 60)} min</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <dt>Short break</dt>
+                  <dd>{Math.round(settings.breakDuration / 60)} min</dd>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <dt>Long break</dt>
+                  <dd>{Math.round(settings.longBreakDuration / 60)} min</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-white/12 bg-white/6 text-white hover:bg-white/10"
+              >
+                <Link href="/settings">
+                  <Settings2 className="size-4" />
+                  Tune settings
+                </Link>
+              </Button>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-2 text-sm text-slate-300">
+                <ChartNoAxesColumn className="size-4" />
+                Daily stats update automatically
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <Stats />
     </div>
   );
 }

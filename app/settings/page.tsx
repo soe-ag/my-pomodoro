@@ -7,12 +7,7 @@ export default function SettingsPage() {
   const router = useRouter();
 
   return (
-    <div
-      className="w-full max-w-4xl mx-auto flex py-0 md:py-6 relative"
-      style={{
-        fontFamily: "ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto",
-      }}
-    >
+    <div className="w-full">
       <SettingsPanel onClose={() => router.push("/")} />
     </div>
   );
