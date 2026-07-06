@@ -95,7 +95,10 @@ export const playNotificationSound = (): void => {
     oscillator.frequency.value = 880;
     oscillator.type = "sine";
     gainNode.gain.setValueAtTime(0.2, context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.45);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.001,
+      context.currentTime + 0.45,
+    );
     return 0.45;
   });
 };
@@ -104,10 +107,19 @@ export const playChirpSound = (): void => {
   playTone((context, oscillator, gainNode) => {
     oscillator.type = "triangle";
     oscillator.frequency.setValueAtTime(520, context.currentTime);
-    oscillator.frequency.linearRampToValueAtTime(1040, context.currentTime + 0.18);
+    oscillator.frequency.linearRampToValueAtTime(
+      1040,
+      context.currentTime + 0.18,
+    );
     gainNode.gain.setValueAtTime(0.0001, context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.14, context.currentTime + 0.02);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.24);
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.14,
+      context.currentTime + 0.02,
+    );
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.001,
+      context.currentTime + 0.24,
+    );
     return 0.24;
   });
 };
@@ -149,7 +161,9 @@ export const getNextSession = (
   if (current === "work") {
     const nextCompletedCount = sessionsCompleted + 1;
     const nextType =
-      nextCompletedCount % WORK_SESSIONS_PER_CYCLE === 0 ? "long-break" : "break";
+      nextCompletedCount % WORK_SESSIONS_PER_CYCLE === 0
+        ? "long-break"
+        : "break";
 
     return {
       next: nextType,
@@ -164,4 +178,3 @@ export const getNextSession = (
     sessionsCompleted,
   };
 };
-

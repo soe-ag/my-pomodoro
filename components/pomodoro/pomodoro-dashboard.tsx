@@ -49,7 +49,9 @@ export function PomodoroDashboard() {
                   Build a steadier focus loop instead of chasing urgency.
                 </h2>
                 <p className="text-base leading-7 text-slate-300 sm:text-lg">
-                  One deep module now owns timer flow, session rules, and notifications. The UI is lighter, and the work rhythm is clearer.
+                  One deep module now owns timer flow, session rules, and
+                  notifications. The UI is lighter, and the work rhythm is
+                  clearer.
                 </p>
               </div>
             </div>
@@ -95,17 +97,22 @@ export function PomodoroDashboard() {
 
           <div className="space-y-4">
             <div className="rounded-[1.75rem] border border-white/10 bg-white/6 p-5">
-              <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Cycle status</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-slate-400">
+                Cycle status
+              </p>
               <div className="mt-3 text-3xl font-semibold text-white">
                 {completedInCycle}/4
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-300">
-                {nextLongBreakIn} more completed focus session{nextLongBreakIn === 1 ? "" : "s"} until the next long break.
+                {nextLongBreakIn} more completed focus session
+                {nextLongBreakIn === 1 ? "" : "s"} until the next long break.
               </p>
             </div>
 
             <div className="rounded-[1.75rem] border border-white/10 bg-white/6 p-5">
-              <p className="text-xs uppercase tracking-[0.28em] text-slate-400">Current durations</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-slate-400">
+                Current durations
+              </p>
               <dl className="mt-4 space-y-3 text-sm text-slate-200">
                 <div className="flex items-center justify-between gap-4">
                   <dt>Focus</dt>
