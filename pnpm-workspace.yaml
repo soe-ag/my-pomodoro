@@ -1,9 +1,4 @@
 allowBuilds:
-  msw: set this to true or false
-  sharp: set this to true or false
-  unrs-resolver: set this to true or false
-
-onlyBuiltDependencies:
-  - msw@2.14.6(@types/node@20.19.43)(typescript@5.9.3)
-  - sharp@0.34.5
-  - unrs-resolver@1.12.2
+  msw: false
+  sharp: true
+  unrs-resolver: true
