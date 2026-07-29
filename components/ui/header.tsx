@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Settings2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export default function Header() {
   const pathname = usePathname();
@@ -19,16 +18,13 @@ export default function Header() {
           </h1>
         </Link>
 
-        <Button
-          asChild
-          variant="outline"
-          className="rounded-full border-white/12 bg-white/6 text-white hover:bg-white/10"
+        <Link
+          href={isSettings ? "/" : "/settings"}
+          className="inline-flex h-9 items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10"
         >
-          <Link href={isSettings ? "/" : "/settings"}>
-            {isSettings ? <Home className="size-4" /> : <Settings2 className="size-4" />}
-            {isSettings ? "Back to timer" : "Settings"}
-          </Link>
-        </Button>
+          {isSettings ? <Home className="size-4" /> : <Settings2 className="size-4" />}
+          {isSettings ? "Back to timer" : "Settings"}
+        </Link>
       </div>
     </header>
   );

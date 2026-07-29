@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { SessionType } from "@/lib/pomodoro/constants";
 import { getSessionTheme } from "@/lib/pomodoro/session-theme";
 import { formatTime } from "@/lib/pomodoro/timer-logic";
@@ -10,7 +11,7 @@ interface TimerDisplayProps {
   sessionDuration: number;
 }
 
-export function TimerDisplay({
+export const TimerDisplay = memo(function TimerDisplay({
   timeRemaining,
   sessionType,
   sessionDuration,
@@ -48,4 +49,4 @@ export function TimerDisplay({
       </div>
     </div>
   );
-}
+});

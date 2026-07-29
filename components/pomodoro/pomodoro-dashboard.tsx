@@ -5,7 +5,6 @@ import { ChartNoAxesColumn, Settings2 } from "lucide-react";
 import { Stats } from "./stats";
 import { TimerControls } from "./timer-controls";
 import { TimerDisplay } from "./timer-display";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SESSION_TYPES } from "@/lib/pomodoro/constants";
 import { getSessionTheme } from "@/lib/pomodoro/session-theme";
@@ -129,17 +128,13 @@ export function PomodoroDashboard() {
               </dl>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Button
-                asChild
-                variant="outline"
-                className="rounded-full border-white/12 bg-white/6 text-white hover:bg-white/10"
+            <div className="flex flex-wrap gap-3">              <Link
+                href="/settings"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10"
               >
-                <Link href="/settings">
-                  <Settings2 className="size-4" />
-                  Tune settings
-                </Link>
-              </Button>
+                <Settings2 className="size-4" />
+                Tune settings
+              </Link>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-2 text-sm text-slate-300">
                 <ChartNoAxesColumn className="size-4" />
                 Daily stats update automatically

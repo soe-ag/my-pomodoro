@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { SessionType } from "@/lib/pomodoro/constants";
@@ -13,7 +14,7 @@ interface TimerControlsProps {
   sessionType: SessionType;
 }
 
-export function TimerControls({
+export const TimerControls = memo(function TimerControls({
   isRunning,
   onStart,
   onPause,
@@ -56,4 +57,4 @@ export function TimerControls({
       </Button>
     </div>
   );
-}
+});

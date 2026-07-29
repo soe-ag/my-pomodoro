@@ -4,7 +4,9 @@ import {
   createContext,
   createElement,
   use,
+  useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -51,7 +53,9 @@ interface PomodoroState {
 }
 
 const PomodoroContext = createContext<PomodoroController | null>(null);
-const TIMER_SYNC_INTERVAL_MS = 250;
+// The visible timer changes once a second. A faster interval only creates
+// redundant React renders; deadline reconciliation keeps it accurate.
+const TIMER_SYNC_INTERVAL_MS = 1_000;
 
 const createInitialState = (): PomodoroState => ({
   settings: DEFAULT_SETTINGS,
@@ -252,7 +256,7 @@ const usePomodoroController = (): PomodoroController => {
     });
   }, [state.isRunning, state.sessionsCompleted, state.sessionType, state.settings, state.timeRemaining]);
 
-  const selectSession = (nextSessionType: SessionType) => {
+  const selectSession = useCallback((nextSessionType: SessionType) => {
     setState((current) => {
       const synced = syncRunningState(current);
       const currentDuration = getSessionDuration(synced.sessionType, synced.settings);
@@ -274,9 +278,9 @@ const usePomodoroController = (): PomodoroController => {
         deadlineAt: null,
       };
     });
-  };
+  }, []);
 
-  const start = () => {
+  const start = useCallback(() => {
     unlockAudio();
 
     setState((current) => {
@@ -296,9 +300,9 @@ const usePomodoroController = (): PomodoroController => {
     if (state.settings.soundEnabled && !state.isRunning) {
       playChirpSound();
     }
-  };
+  }, [state.isRunning, state.settings.soundEnabled]);
 
-  const pause = () => {
+  const pause = useCallback(() => {
     setState((current) => {
       const synced = syncRunningState(current);
 
@@ -308,18 +312,18 @@ const usePomodoroController = (): PomodoroController => {
         deadlineAt: null,
       };
     });
-  };
+  }, []);
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setState((current) => ({
       ...current,
       isRunning: false,
       timeRemaining: getSessionDuration(current.sessionType, current.settings),
       deadlineAt: null,
     }));
-  };
+  }, []);
 
-  return {
+  return useMemo(() => ({
     settings: state.settings,
     timeRemaining: state.timeRemaining,
     isRunning: state.isRunning,
@@ -330,7 +334,7 @@ const usePomodoroController = (): PomodoroController => {
     start,
     pause,
     reset,
-  };
+  }), [state, selectSession, start, pause, reset]);
 };
 
 export function PomodoroProvider({ children }: { children: ReactNode }) {

@@ -1,4 +1,4 @@
-﻿import { act, renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 import { createElement, type ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_SETTINGS } from "./constants";
@@ -278,7 +278,7 @@ describe("usePomodoro", () => {
 
     vi.setSystemTime(2_500);
     act(() => {
-      vi.advanceTimersByTime(250);
+      vi.advanceTimersByTime(1000);
     });
     await flushEffects();
     await flushEffects();
