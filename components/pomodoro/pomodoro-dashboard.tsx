@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { ChartNoAxesColumn, Settings2 } from "lucide-react";
+import { SessionSelector } from "./session-selector";
 import { Stats } from "./stats";
 import { TimerControls } from "./timer-controls";
 import { TimerDisplay } from "./timer-display";
 import { Card } from "@/components/ui/card";
-import { SESSION_TYPES } from "@/lib/pomodoro/constants";
 import { getSessionTheme } from "@/lib/pomodoro/session-theme";
 import { usePomodoro } from "@/lib/pomodoro/use-pomodoro";
 
@@ -55,29 +55,11 @@ export function PomodoroDashboard() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {SESSION_TYPES.map((type) => {
-                const theme = getSessionTheme(type);
-                const isActive = sessionType === type;
-
-                return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => selectSession(type)}
-                    disabled={isRunning}
-                    className={[
-                      "rounded-full border px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
-                      isActive
-                        ? `border-transparent bg-linear-to-r ${theme.buttonClassName}`
-                        : "border-white/12 bg-white/6 text-slate-200 hover:bg-white/10",
-                    ].join(" ")}
-                  >
-                    {theme.shortLabel}
-                  </button>
-                );
-              })}
-            </div>
+            <SessionSelector
+              isRunning={isRunning}
+              onSelect={selectSession}
+              sessionType={sessionType}
+            />
 
             <TimerDisplay
               timeRemaining={timeRemaining}
