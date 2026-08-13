@@ -4,6 +4,7 @@ import {
   POMODORO_EVENT,
   addSessionRecord,
   getDailyStats,
+  getRecentDateKeys,
   getToday,
   getWeeklyStats,
   loadSettings,
@@ -68,5 +69,15 @@ describe("pomodoro storage", () => {
   it("returns seven daily stat buckets in chronological order", () => {
     expect(getWeeklyStats()).toHaveLength(7);
     expect(getWeeklyStats().at(-1)?.date).toBe(getToday());
+  });
+
+  it("creates recent date keys in local chronological order", () => {
+    const date = new Date(2026, 0, 2, 12);
+
+    expect(getRecentDateKeys(3, date)).toEqual([
+      "2025-12-31",
+      "2026-01-01",
+      "2026-01-02",
+    ]);
   });
 });

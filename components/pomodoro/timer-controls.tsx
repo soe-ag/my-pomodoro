@@ -31,7 +31,7 @@ export const TimerControls = memo(function TimerControls({
           size="lg"
           className={`min-w-32 rounded-full bg-linear-to-r ${theme.buttonClassName} px-6 shadow-[0_18px_45px_rgba(15,23,42,0.25)] transition-transform hover:-translate-y-0.5`}
         >
-          <Play className="size-4" />
+          <Play aria-hidden="true" className="size-4" />
           Start
         </Button>
       ) : (
@@ -41,7 +41,7 @@ export const TimerControls = memo(function TimerControls({
           variant="outline"
           className="min-w-32 rounded-full border-white/15 bg-white/8 px-6 text-white backdrop-blur-sm hover:bg-white/12"
         >
-          <Pause className="size-4" />
+          <Pause aria-hidden="true" className="size-4" />
           Pause
         </Button>
       )}
@@ -52,7 +52,7 @@ export const TimerControls = memo(function TimerControls({
         variant="outline"
         className="rounded-full border-white/15 bg-transparent px-6 text-white hover:bg-white/8"
       >
-        <RotateCcw className="size-4" />
+        <RotateCcw aria-hidden="true" className="size-4" />
         Reset
       </Button>
     </div>

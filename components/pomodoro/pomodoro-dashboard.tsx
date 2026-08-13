@@ -7,6 +7,7 @@ import { Stats } from "./stats";
 import { TimerControls } from "./timer-controls";
 import { TimerDisplay } from "./timer-display";
 import { Card } from "@/components/ui/card";
+import { WORK_SESSIONS_PER_CYCLE } from "@/lib/pomodoro/constants";
 import { getSessionTheme } from "@/lib/pomodoro/session-theme";
 import { usePomodoro } from "@/lib/pomodoro/use-pomodoro";
 
@@ -25,8 +26,11 @@ export function PomodoroDashboard() {
   } = usePomodoro();
 
   const sessionTheme = getSessionTheme(sessionType);
-  const completedInCycle = sessionsCompleted % 4;
-  const nextLongBreakIn = completedInCycle === 0 ? 4 : 4 - completedInCycle;
+  const completedInCycle = sessionsCompleted % WORK_SESSIONS_PER_CYCLE;
+  const nextLongBreakIn =
+    completedInCycle === 0
+      ? WORK_SESSIONS_PER_CYCLE
+      : WORK_SESSIONS_PER_CYCLE - completedInCycle;
 
   return (
     <div className="w-full space-y-6">
@@ -38,19 +42,18 @@ export function PomodoroDashboard() {
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-slate-400">
                 <span className="rounded-full border border-white/10 bg-white/6 px-3 py-1 text-slate-200">
-                  Pomodoro Rhythm
+                  Focus Rhythm
                 </span>
                 <span>{sessionsCompleted} focus blocks finished today</span>
               </div>
 
               <div className="max-w-2xl space-y-3">
-                <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-                  Build a steadier focus loop instead of chasing urgency.
+                <h2 className="text-pretty text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+                  Protect One Clear Priority at a Time
                 </h2>
                 <p className="text-base leading-7 text-slate-300 sm:text-lg">
-                  One deep module now owns timer flow, session rules, and
-                  notifications. The UI is lighter, and the work rhythm is
-                  clearer.
+                  Settle into a focused block, then take the break you earned.
+                  Your timer and daily progress stay on this device.
                 </p>
               </div>
             </div>
@@ -79,10 +82,10 @@ export function PomodoroDashboard() {
           <div className="space-y-4">
             <div className="rounded-[1.75rem] border border-white/10 bg-white/6 p-5">
               <p className="text-xs uppercase tracking-[0.28em] text-slate-400">
-                Cycle status
+                Cycle Status
               </p>
               <div className="mt-3 text-3xl font-semibold text-white">
-                {completedInCycle}/4
+                {completedInCycle}/{WORK_SESSIONS_PER_CYCLE}
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-300">
                 {nextLongBreakIn} more completed focus session
@@ -92,7 +95,7 @@ export function PomodoroDashboard() {
 
             <div className="rounded-[1.75rem] border border-white/10 bg-white/6 p-5">
               <p className="text-xs uppercase tracking-[0.28em] text-slate-400">
-                Current durations
+                Current Durations
               </p>
               <dl className="mt-4 space-y-3 text-sm text-slate-200">
                 <div className="flex items-center justify-between gap-4">
@@ -110,15 +113,16 @@ export function PomodoroDashboard() {
               </dl>
             </div>
 
-            <div className="flex flex-wrap gap-3">              <Link
+            <div className="flex flex-wrap gap-3">
+              <Link
                 href="/settings"
-                className="inline-flex h-9 items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-white/10"
+                className="inline-flex min-h-11 touch-manipulation items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-white/20 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300/70"
               >
-                <Settings2 className="size-4" />
-                Tune settings
+                <Settings2 aria-hidden="true" className="size-4" />
+                Tune Settings
               </Link>
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/6 px-4 py-2 text-sm text-slate-300">
-                <ChartNoAxesColumn className="size-4" />
+                <ChartNoAxesColumn aria-hidden="true" className="size-4" />
                 Daily stats update automatically
               </div>
             </div>

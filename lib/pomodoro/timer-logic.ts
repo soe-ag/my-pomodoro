@@ -79,17 +79,6 @@ export const formatTime = (seconds: number): string => {
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 };
 
-export const getSessionLabel = (sessionType: SessionType): string => {
-  switch (sessionType) {
-    case "work":
-      return "Focus Session";
-    case "break":
-      return "Short Break";
-    case "long-break":
-      return "Long Break";
-  }
-};
-
 export const playNotificationSound = (): void => {
   playTone((context, oscillator, gainNode) => {
     oscillator.frequency.value = 880;

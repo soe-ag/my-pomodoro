@@ -24,3 +24,6 @@ export const DEFAULT_SETTINGS: PomodoroSettings = {
 };
 
 export const WORK_SESSIONS_PER_CYCLE = 4;
+
+export const MIN_SESSION_DURATION_MINUTES = 1;
+export const MAX_SESSION_DURATION_MINUTES = 180;

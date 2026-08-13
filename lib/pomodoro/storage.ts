@@ -65,6 +65,16 @@ const formatLocalDate = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+export const getRecentDateKeys = (
+  days: number,
+  today: Date = new Date(),
+): string[] =>
+  Array.from({ length: Math.max(0, days) }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (days - 1 - index));
+    return formatLocalDate(date);
+  });
+
 export const loadSettings = (): PomodoroSettings => {
   if (!isBrowser) {
     return DEFAULT_SETTINGS;
@@ -140,11 +150,5 @@ export const saveSettingsAndNotify = (settings: PomodoroSettings): void => {
 };
 
 export const getWeeklyStats = (): DailyStats[] => {
-  const today = new Date();
-
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() - (6 - index));
-    return getDailyStats(formatLocalDate(date));
-  });
+  return getRecentDateKeys(7).map((date) => getDailyStats(date));
 };

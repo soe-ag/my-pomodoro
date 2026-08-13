@@ -31,7 +31,7 @@ import {
 } from "./timer-logic";
 
 export interface PomodoroController {
-  settings: typeof DEFAULT_SETTINGS;
+  settings: PomodoroSettings;
   timeRemaining: number;
   isRunning: boolean;
   sessionType: SessionType;
@@ -44,7 +44,7 @@ export interface PomodoroController {
 }
 
 interface PomodoroState {
-  settings: typeof DEFAULT_SETTINGS;
+  settings: PomodoroSettings;
   timeRemaining: number;
   isRunning: boolean;
   sessionType: SessionType;

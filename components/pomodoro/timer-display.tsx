@@ -31,17 +31,26 @@ export const TimerDisplay = memo(function TimerDisplay({
       </div>
 
       <div className="text-center">
-        <div
-          className={`bg-linear-to-r ${theme.textClassName} bg-clip-text text-7xl font-semibold tracking-tight text-transparent sm:text-8xl lg:text-[7rem]`}
+        <time
+          aria-label={`${theme.label}: ${formatTime(timeRemaining)} remaining`}
+          className={`bg-linear-to-r ${theme.textClassName} bg-clip-text font-mono text-7xl font-semibold tracking-tight text-transparent tabular-nums sm:text-8xl lg:text-[7rem]`}
+          dateTime={`PT${timeRemaining}S`}
         >
           {formatTime(timeRemaining)}
-        </div>
+        </time>
         <p className="mt-3 max-w-md text-sm text-slate-300 sm:text-base">
           {theme.description}
         </p>
       </div>
 
-      <div className="w-full max-w-2xl rounded-full border border-white/10 bg-white/6 p-1.5">
+      <div
+        aria-label={`${Math.round(progress)}% of ${theme.label.toLowerCase()} complete`}
+        aria-valuemax={100}
+        aria-valuemin={0}
+        aria-valuenow={Math.round(progress)}
+        className="w-full max-w-2xl rounded-full border border-white/10 bg-white/6 p-1.5"
+        role="progressbar"
+      >
         <div
           className={`h-3 rounded-full bg-linear-to-r ${theme.progressClassName} transition-[width] duration-300 ease-out`}
           style={{ width: `${progress}%` }}
