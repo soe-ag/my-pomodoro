@@ -33,9 +33,11 @@ lib/                   Shared utilities
 
 ## Development
 
+Requires Node.js 22.13 or newer and pnpm 11.10.0.
+
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
@@ -43,6 +45,6 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Verification
 
 ```bash
-npm run lint
-npm run build
+pnpm lint
+pnpm build
 ```
