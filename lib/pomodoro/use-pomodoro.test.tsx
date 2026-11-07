@@ -177,6 +177,33 @@ describe("usePomodoro", () => {
     vi.useRealTimers();
   });
 
+  it("shows the countdown in the tab title while running and restores it when paused", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+    installAudioStub();
+
+    const { result } = renderHook(() => usePomodoro(), { wrapper });
+
+    act(() => {
+      saveSettingsAndNotify({ ...DEFAULT_SETTINGS, workDuration: 90 });
+    });
+    act(() => {
+      result.current.start();
+    });
+    await flushEffects();
+
+    expect(document.title).toBe("01:30 - Focus | My Pomodoro");
+
+    act(() => {
+      result.current.pause();
+    });
+    await flushEffects();
+
+    expect(document.title).toBe("My Pomodoro");
+
+    vi.useRealTimers();
+  });
+
   it("finishes short break and long break sessions through the shared countdown path", async () => {
     vi.useFakeTimers();
     installAudioStub();

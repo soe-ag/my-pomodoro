@@ -77,6 +77,17 @@ const getSessionName = (sessionType: SessionType): string => {
   }
 };
 
+const getSessionLabel = (sessionType: SessionType): string => {
+  switch (sessionType) {
+    case "work":
+      return "Focus";
+    case "break":
+      return "Break";
+    case "long-break":
+      return "Long break";
+  }
+};
+
 const confirmSessionReset = (
   currentSessionType: SessionType,
   nextSessionType: SessionType,
@@ -169,6 +180,23 @@ const usePomodoroController = (): PomodoroController => {
       window.removeEventListener(POMODORO_EVENT.settingsSaved, handleSettingsSaved);
     };
   }, []);
+
+  useEffect(() => {
+    const baseTitle = "My Pomodoro";
+
+    if (!state.isRunning) {
+      document.title = baseTitle;
+      return;
+    }
+
+    const minutes = String(Math.floor(state.timeRemaining / 60)).padStart(2, "0");
+    const seconds = String(state.timeRemaining % 60).padStart(2, "0");
+    document.title = `${minutes}:${seconds} - ${getSessionLabel(state.sessionType)} | ${baseTitle}`;
+
+    return () => {
+      document.title = baseTitle;
+    };
+  }, [state.isRunning, state.timeRemaining, state.sessionType]);
 
   useEffect(() => {
     if (state.settings.notificationsEnabled) {
